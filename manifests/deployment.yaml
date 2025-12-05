@@ -1,4 +1,4 @@
-apiVersion: apps/v
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: petclinic
@@ -14,17 +14,19 @@ spec:
     spec:
       containers:
       - name: petclinic
-        image: petclinicacr091b93.azurecr.io/petclinic:latest
+        image: petclinic:latest  # The pipeline will overwrite this automatically
         ports:
-        - containerPort: 8080
+        - containerPort: 8080    # Standard Java port
         resources:
           requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
             memory: "512Mi"
             cpu: "500m"
-          limits:
-            memory: "1024Mi"
-            cpu: "1000m"
+
 ---
+
 apiVersion: v1
 kind: Service
 metadata:
@@ -32,7 +34,7 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-  - port: 80
-    targetPort: 8080
+  - port: 80           # The port you will use in your browser
+    targetPort: 8080   # The port the container is listening on
   selector:
     app: petclinic
