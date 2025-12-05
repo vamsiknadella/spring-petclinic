@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: petclinic
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: petclinic
+  template:
+    metadata:
+      labels:
+        app: petclinic
+    spec:
+      containers:
+      - name: petclinic
+        image: petclinic:latest  # The pipeline will overwrite this automatically
+        ports:
+        - containerPort: 8080    # Standard Java port
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: petclinic-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80           # The port you will use in your browser
+    targetPort: 8080   # The port the container is listening on
+  selector:
+    app: petclinic
