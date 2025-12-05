@@ -26,11 +26,8 @@ stages:
         containerRegistry: $(acrConnection)
         tags: latest
 
-    # DEBUG STEP: This will list all files so we know EXACTLY where deployment.yaml is
-    - script: |
-        echo "Listing files in Source Directory:"
-        ls -R $(Build.SourcesDirectory)
-      displayName: 'Debug: List All Files'
+    - script: ls -R $(Build.SourcesDirectory)
+      displayName: 'Debug List Files'
 
     - task: PublishPipelineArtifact@1
       displayName: 'Publish Manifests'
