@@ -29,10 +29,12 @@ stages:
           latest
           $(Build.BuildId)
 
-    - task: PublishPipelineArtifact@1
+- task: PublishPipelineArtifact@1
+      displayName: 'Publish Manifests'
       inputs:
-        targetPath: 'manifests'
+        targetPath: '$(Build.SourcesDirectory)/manifests' # <--- CRITICAL FIX
         artifact: 'manifests'
+        publishLocation: 'pipeline'
 
 - stage: Deploy
   displayName: Deploy to AKS
