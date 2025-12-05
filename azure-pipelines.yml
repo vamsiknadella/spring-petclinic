@@ -5,7 +5,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  # CHANGE THIS to your ACR Login Server (e.g., petclinicacr1234.azurecr.io)
+  # CHANGE THIS to your ACR Login Server
   acrLoginServer: 'petclinicacr091b93.azurecr.io'
   imageName: 'petclinic'
   acrConnection: 'ACR-Connection'
@@ -29,10 +29,11 @@ stages:
           latest
           $(Build.BuildId)
 
-- task: PublishPipelineArtifact@1
+    # This task is now correctly indented to align with the Docker task above
+    - task: PublishPipelineArtifact@1
       displayName: 'Publish Manifests'
       inputs:
-        targetPath: '$(Build.SourcesDirectory)/manifests' # <--- CRITICAL FIX
+        targetPath: '$(Build.SourcesDirectory)/manifests'
         artifact: 'manifests'
         publishLocation: 'pipeline'
 
@@ -47,7 +48,6 @@ stages:
       inputs:
         artifact: 'manifests'
 
-    # FIX: This block was previously un-indented and broken
     - task: KubernetesManifest@1
       displayName: Deploy to Cluster
       inputs:
