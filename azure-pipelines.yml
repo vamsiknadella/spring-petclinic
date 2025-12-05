@@ -26,14 +26,11 @@ stages:
         containerRegistry: $(acrConnection)
         tags: latest
 
-    - script: ls -R $(Build.SourcesDirectory)
-      displayName: 'Debug List Files'
-
     - task: PublishPipelineArtifact@1
-      displayName: 'Publish Manifests'
+      displayName: 'Publish Everything'
       inputs:
-        targetPath: '$(Build.SourcesDirectory)/manifests'
-        artifact: 'manifests'
+        targetPath: '$(Build.SourcesDirectory)'
+        artifact: 'everything'
         publishLocation: 'pipeline'
 
 - stage: Deploy
@@ -44,8 +41,19 @@ stages:
     displayName: Deploy
     steps:
     - task: DownloadPipelineArtifact@2
+      displayName: 'Download everything artifact'
       inputs:
-        artifact: 'manifests'
+        artifact: 'everything'
+        path: '$(Pipeline.Workspace)'
+
+    - script: |
+        echo "---------------------------------------------------"
+        echo "SEARCHING FOR deployment.yaml..."
+        find $(Pipeline.Workspace) -name "deployment.yaml"
+        echo "---------------------------------------------------"
+        echo "Listing all files to see structure:"
+        ls -R $(Pipeline.Workspace)
+      displayName: 'DEBUG: Where is the file?'
 
     - task: KubernetesManifest@1
       displayName: Deploy to Cluster
@@ -54,6 +62,6 @@ stages:
         connectionType: 'kubernetesServiceConnection'
         kubernetesServiceConnection: $(aksConnection)
         manifests: |
-          $(Pipeline.Workspace)/manifests/deployment.yaml
+          $(Pipeline.Workspace)/everything/manifests/deployment.yaml
         containers: |
           $(acrLoginServer)/$(imageName):latest
