@@ -17,6 +17,8 @@ stages:
   - job: Build
     displayName: Build
     steps:
+    - checkout: self
+
     - task: Docker@2
       displayName: Build Docker Image
       inputs:
@@ -26,13 +28,6 @@ stages:
         containerRegistry: $(acrConnection)
         tags: latest
 
-    - task: PublishPipelineArtifact@1
-      displayName: 'Publish Everything'
-      inputs:
-        targetPath: '$(Build.SourcesDirectory)'
-        artifact: 'everything'
-        publishLocation: 'pipeline'
-
 - stage: Deploy
   displayName: Deploy to AKS
   dependsOn: Build
@@ -40,20 +35,14 @@ stages:
   - job: Deploy
     displayName: Deploy
     steps:
-    - task: DownloadPipelineArtifact@2
-      displayName: 'Download everything artifact'
-      inputs:
-        artifact: 'everything'
-        path: '$(Pipeline.Workspace)'
+    - checkout: self
 
+    # Optional: debug paths
     - script: |
-        echo "---------------------------------------------------"
-        echo "SEARCHING FOR deployment.yaml..."
-        find $(Pipeline.Workspace) -name "deployment.yaml"
-        echo "---------------------------------------------------"
-        echo "Listing all files to see structure:"
-        ls -R $(Pipeline.Workspace)
-      displayName: 'DEBUG: Where is the file?'
+        echo "System.DefaultWorkingDirectory: $(System.DefaultWorkingDirectory)"
+        echo "Listing manifests dir:"
+        ls -R $(System.DefaultWorkingDirectory)/manifests || echo "manifests folder not found"
+      displayName: "DEBUG: Check manifests path"
 
     - task: KubernetesManifest@1
       displayName: Deploy to Cluster
@@ -62,6 +51,6 @@ stages:
         connectionType: 'kubernetesServiceConnection'
         kubernetesServiceConnection: $(aksConnection)
         manifests: |
-          $(Pipeline.Workspace)/everything/manifests/deployment.yaml
+          $(System.DefaultWorkingDirectory)/manifests/deployment.yaml
         containers: |
           $(acrLoginServer)/$(imageName):latest
