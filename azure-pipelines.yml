@@ -5,7 +5,6 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  # CHANGE THIS to your ACR Login Server
   acrLoginServer: 'petclinicacr091b93.azurecr.io'
   imageName: 'petclinic'
   acrConnection: 'ACR-Connection'
@@ -19,17 +18,20 @@ stages:
     displayName: Build
     steps:
     - task: Docker@2
-      displayName: Build and Push to ACR
+      displayName: Build Docker Image
       inputs:
         command: buildAndPush
         repository: $(imageName)
         dockerfile: 'Dockerfile'
         containerRegistry: $(acrConnection)
-        tags: |
-          latest
-          $(Build.BuildId)
+        tags: latest
 
-    # This task is now correctly indented to align with the Docker task above
+    # DEBUG STEP: This will list all files so we know EXACTLY where deployment.yaml is
+    - script: |
+        echo "Listing files in Source Directory:"
+        ls -R $(Build.SourcesDirectory)
+      displayName: 'Debug: List All Files'
+
     - task: PublishPipelineArtifact@1
       displayName: 'Publish Manifests'
       inputs:
@@ -57,4 +59,4 @@ stages:
         manifests: |
           $(Pipeline.Workspace)/manifests/deployment.yaml
         containers: |
-          $(acrLoginServer)/$(imageName):$(Build.BuildId)
+          $(acrLoginServer)/$(imageName):latest
