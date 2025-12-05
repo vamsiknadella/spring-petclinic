@@ -45,11 +45,12 @@ stages:
       inputs:
         artifact: 'manifests'
 
-- task: KubernetesManifest@1              # <--- Changed to @1
+    # FIX: This block was previously un-indented and broken
+    - task: KubernetesManifest@1
       displayName: Deploy to Cluster
       inputs:
         action: 'deploy'
-        connectionType: 'kubernetesServiceConnection' # <--- NEW LINE REQUIRED
+        connectionType: 'kubernetesServiceConnection'
         kubernetesServiceConnection: $(aksConnection)
         manifests: |
           $(Pipeline.Workspace)/manifests/deployment.yaml
