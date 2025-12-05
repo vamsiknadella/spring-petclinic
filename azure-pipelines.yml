@@ -45,11 +45,11 @@ stages:
       inputs:
         artifact: 'manifests'
 
-   - task: KubernetesManifest@1
-   displayName: Deploy to Cluster
+- task: KubernetesManifest@1              # <--- Changed to @1
+      displayName: Deploy to Cluster
       inputs:
         action: 'deploy'
-        connectionType: 'kubernetesServiceConnection'
+        connectionType: 'kubernetesServiceConnection' # <--- NEW LINE REQUIRED
         kubernetesServiceConnection: $(aksConnection)
         manifests: |
           $(Pipeline.Workspace)/manifests/deployment.yaml
