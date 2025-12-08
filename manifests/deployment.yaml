@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: petclinic
-        image: petclinic:latest  # The pipeline will overwrite this automatically
+        image: $(imageName):latest  # The pipeline will overwrite this automatically
         ports:
         - containerPort: 8080    # Standard Java port
         resources:
